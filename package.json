@@ -1,0 +1,23 @@
+{
+  "name": "@spriteful/mobilenet-worker",
+  "version": "1.0.0",
+  "description": "run tfjs object classification using mobilenet in a web worker",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spriteful/mobilenet-worker.git"
+  },
+  "author": "Spriteful spritefuldev@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/spriteful/mobilenet-worker/issues"
+  },
+  "homepage": "https://github.com/spriteful/mobilenet-worker#readme",
+  "dependencies": {
+    "@tensorflow/tfjs": "^1.2.2",
+    "comlink": "^4.0.1"
+  }
+}
