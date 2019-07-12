@@ -1,6 +1,6 @@
 {
   "name": "@spriteful/mobilenet-worker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "run tfjs object classification using mobilenet in a web worker",
   "main": "worker.js",
   "scripts": {
