@@ -1,3 +1,32 @@
+/**
+	* 
+	* Example usage in main thread.
+	*
+	* 	const {default: Worker} = await import(
+	*   	'@spriteful/mobilenet-worker/worker.js'
+	* 	);
+	*
+	* Use new Comlink v4+ library
+	*
+	* 	const worker = Comlink.wrap(new Worker());
+	*
+	* Optionally set a custom path that points to the 
+	* model directory.
+	* Don't forget to copy the folder over in webpack.
+	*
+	* 	await worker.load('./my-model-dir');
+	*
+	* Use new Comlink v4+ transfer method
+	* to transfer instead of copy the ImageBitmap.
+	* This equates to a big performance gain.
+	*
+	* 	const prediction = await worker.predict(
+	*   	Comlink.transfer({bitmap}, [bitmap]) 
+	* 	);
+	*
+	*
+	**/
+
 // match mobilenet input
 const IMAGE_SIZE = 224;
 // layers model
@@ -23,15 +52,13 @@ self.HTMLCanvasElement = OffscreenCanvas;
 import * as Comlink from 'comlink';
 import * as tf 		  from '@tensorflow/tfjs';
 
-// TODO: 
-// 			fetch labels from path that is passed in
-import classLabels  from 'model/labels.json';
 
-
-const canvas  = new OffscreenCanvas(IMAGE_SIZE, IMAGE_SIZE);
-const context = canvas.getContext('2d');
+let classLabels;
 let netModel;
 let retrainedModel;
+// this canvas gets reused to crop incoming bitmap to fit mobilenet
+const canvas  = new OffscreenCanvas(IMAGE_SIZE, IMAGE_SIZE);
+const context = canvas.getContext('2d');
 
 // load mobilenet and keep all but top layers
 const loadDecapitatedMobilenet = async url => {
@@ -45,9 +72,14 @@ const loadDecapitatedMobilenet = async url => {
 };
 
 // load mobilenet base model and custom retrained layers model
-const load = async (modelPath = './model/model.json') => {
-	netModel 			 = await loadDecapitatedMobilenet(MOBILENET_URL);
-	retrainedModel = await tf.loadLayersModel(modelPath);
+const load = async (modelDir = './model') => {
+	const modelPath  = `${modelDir}/model.json`;
+	const labelsPath = `${modelDir}/labels.json`;
+	const response 	 = await fetch(labelsPath);
+	const labels 		 = await response.json();
+	classLabels 		 = labels['Labels'];
+	netModel 			 	 = await loadDecapitatedMobilenet(MOBILENET_URL);
+	retrainedModel 	 = await tf.loadLayersModel(modelPath);
 	// console.log('backend: ', tf.getBackend());
 };
 
@@ -90,9 +122,21 @@ const predict = async ({bitmap}) => {
 	const input  		 = imgDataToTensor(img);
 	const embeddings = await netModel.predict(input);
 	const output 		 = await retrainedModel.predict(embeddings);
-	const {indices, values} = output.topk();
-	const label 		 = classLabels['Labels'][indices.dataSync()[0]];
-	const confidence = values.dataSync()[0];
+	// top 5 classes, sorted highest first
+	const {indices, values} = output.topk(5, true);
+	const [
+		indicesData, 
+		valuesData
+	] = await Promise.all([
+		indices.data(), 
+		values.data()
+	]); 
+	// serve a collection of confidence levels and corresponding labels
+	const predictions = Array.from(valuesData).map((confidence, index) => {
+		const label = classLabels[indicesData[index]];
+		return {confidence, label};
+	});
+
 	// memory management (use tf.memory() to debug)
 	input.dispose();
 	embeddings.dispose();
@@ -100,7 +144,7 @@ const predict = async ({bitmap}) => {
 	indices.dispose();
 	values.dispose();
 	await tf.nextFrame();
-	return {confidence, label};
+	return predictions;
 };
 
 
