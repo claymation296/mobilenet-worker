@@ -1,5 +1,5 @@
 {
-  "name": "@spriteful/mobilenet-worker",
+  "name": "@longlost/mobilenet-worker",
   "version": "1.0.1",
   "description": "run tfjs object classification using mobilenet in a web worker",
   "main": "worker.js",
@@ -8,16 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spriteful/mobilenet-worker.git"
+    "url": "git+https://github.com/longlost/mobilenet-worker.git"
   },
-  "author": "Spriteful spritefuldev@gmail.com",
+  "author": "Longlost Dev longlostdev@gmail.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/spriteful/mobilenet-worker/issues"
+    "url": "https://github.com/longlost/mobilenet-worker/issues"
   },
-  "homepage": "https://github.com/spriteful/mobilenet-worker#readme",
+  "homepage": "https://github.com/longlost/mobilenet-worker#readme",
   "dependencies": {
-    "@tensorflow/tfjs": "^1.2.2",
-    "comlink": "^4.0.1"
+    "@tensorflow/tfjs": "^1.3.1",
+    "comlink": "^4.1.0"
   }
 }

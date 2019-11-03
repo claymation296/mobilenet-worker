@@ -3,7 +3,7 @@
 	* Example usage in main thread.
 	*
 	* 	const {default: Worker} = await import(
-	*   	'@spriteful/mobilenet-worker/worker.js'
+	*   	'@longlost/mobilenet-worker/worker.js'
 	* 	);
 	*
 	* Use new Comlink v4+ library
